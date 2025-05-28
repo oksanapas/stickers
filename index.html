@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Зворотний дизайн: Стікери</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f0f0;
+      margin: 20px;
+      overflow: hidden;
+    }
+    h2 {
+      text-align: center;
+    }
+    #canvas {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      border: 2px dashed #ccc;
+      background-color: white;
+      overflow: hidden;
+    }
+    .note {
+      position: absolute;
+      width: 180px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border-radius: 8px;
+      color: #000;
+      box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+      cursor: grab;
+      user-select: none;
+      text-align: center;
+      touch-action: none;
+    }
+    #screenshotBtn {
+      margin: 20px auto;
+      display: block;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Зворотний дизайн освітнього процесу</h2>
+  <div id="canvas">
+    <div class="note" style="background-color:#fff89a; top:10px; left:10px;">Очікувані результати навчання</div>
+    <div class="note" style="background-color:#ffb3ba; top:10px; left:210px;">Ключові компетентності</div>
+    <div class="note" style="background-color:#baffc9; top:10px; left:410px;">Цінності освіти</div>
+    <div class="note" style="background-color:#bae1ff; top:120px; left:10px;">Запит учнів</div>
+    <div class="note" style="background-color:#ffffba; top:120px; left:210px;">Методи оцінювання</div>
+    <div class="note" style="background-color:#ffdfba; top:120px; left:410px;">Критерії успіху</div>
+    <div class="note" style="background-color:#e0bbff; top:230px; left:10px;">Навчальні активності</div>
+    <div class="note" style="background-color:#d0f0c0; top:230px; left:210px;">Ресурси й інструменти</div>
+    <div class="note" style="background-color:#c9c9ff; top:230px; left:410px;">Індивідуальні освітні траєкторії</div>
+  </div>
+  <button id="screenshotBtn">Зробити скріншот</button>
+
+  <!-- html2canvas CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script>
+    const notes = document.querySelectorAll('.note');
+    let draggedNote = null;
+    let shiftX = 0;
+    let shiftY = 0;
+
+    notes.forEach(note => {
+      note.addEventListener('pointerdown', (e) => {
+        draggedNote = note;
+        const rect = note.getBoundingClientRect();
+        shiftX = e.clientX - rect.left;
+        shiftY = e.clientY - rect.top;
+
+        draggedNote.style.zIndex = 1000;
+        note.setPointerCapture(e.pointerId);
+      });
+
+      note.addEventListener('pointermove', (e) => {
+        if (!draggedNote) return;
+        const x = e.clientX - shiftX;
+        const y = e.clientY - shiftY;
+        draggedNote.style.left = x + 'px';
+        draggedNote.style.top = y + 'px';
+      });
+
+      note.addEventListener('pointerup', () => {
+        if (draggedNote) draggedNote.style.zIndex = '';
+        draggedNote = null;
+      });
+    });
+
+    document.getElementById('screenshotBtn').addEventListener('click', () => {
+      html2canvas(document.getElementById('canvas')).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'stikery.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    });
+  </script>
+</body>
+</html>
