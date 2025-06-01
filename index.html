@@ -68,45 +68,53 @@
   <!-- html2canvas CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-  <script>
-    const notes = document.querySelectorAll('.note');
-    let draggedNote = null;
-    let shiftX = 0;
-    let shiftY = 0;
+<script>
+  const notes = document.querySelectorAll('.note');
+  const canvas = document.getElementById('canvas');
+  let draggedNote = null;
+  let shiftX = 0;
+  let shiftY = 0;
 
-    notes.forEach(note => {
-      note.addEventListener('pointerdown', (e) => {
-        draggedNote = note;
-        const rect = note.getBoundingClientRect();
-        shiftX = e.clientX - rect.left;
-        shiftY = e.clientY - rect.top;
+  notes.forEach(note => {
+    note.addEventListener('pointerdown', (e) => {
+      draggedNote = note;
 
-        draggedNote.style.zIndex = 1000;
-        note.setPointerCapture(e.pointerId);
-      });
+      const canvasRect = canvas.getBoundingClientRect();
+      const noteRect = note.getBoundingClientRect();
 
-      note.addEventListener('pointermove', (e) => {
-        if (!draggedNote) return;
-        const x = e.clientX - shiftX;
-        const y = e.clientY - shiftY;
-        draggedNote.style.left = x + 'px';
-        draggedNote.style.top = y + 'px';
-      });
+      shiftX = e.clientX - noteRect.left;
+      shiftY = e.clientY - noteRect.top;
 
-      note.addEventListener('pointerup', () => {
-        if (draggedNote) draggedNote.style.zIndex = '';
-        draggedNote = null;
-      });
+      draggedNote.setPointerCapture(e.pointerId);
+      draggedNote.style.zIndex = 1000;
     });
 
-    document.getElementById('screenshotBtn').addEventListener('click', () => {
-      html2canvas(document.getElementById('canvas')).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'stikery.png';
-        link.href = canvas.toDataURL();
-        link.click();
-      });
+    note.addEventListener('pointermove', (e) => {
+      if (!draggedNote) return;
+
+      const canvasRect = canvas.getBoundingClientRect();
+
+      const newLeft = e.clientX - canvasRect.left - shiftX;
+      const newTop = e.clientY - canvasRect.top - shiftY;
+
+      draggedNote.style.left = `${newLeft}px`;
+      draggedNote.style.top = `${newTop}px`;
     });
-  </script>
+
+    note.addEventListener('pointerup', () => {
+      if (draggedNote) draggedNote.style.zIndex = '';
+      draggedNote = null;
+    });
+  });
+
+  document.getElementById('screenshotBtn').addEventListener('click', () => {
+    html2canvas(document.getElementById('canvas')).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'stikery.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  });
+</script>
 </body>
 </html>
